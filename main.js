@@ -58,9 +58,21 @@ showPosts();
 
 window.addEventListener("scroll", () => {
   const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-  if (scrollTop + clientHeight >= scrollHeight - 5) {
-    showLoading();
+  if (scrollTop + clientHeight >= scrollHeight - 10) {
+    throttled();
   }
 });
+
+function throttle(fn, delay) {
+  let canUse = true;
+  return function () {
+    if (canUse) {
+      fn.apply(this, arguments);
+      canUse = false;
+      setTimeout(() => (canUse = true), delay);
+    }
+  };
+}
+const throttled = throttle(showLoading, 1000);
 
 filter.addEventListener("input", filterPosts);
