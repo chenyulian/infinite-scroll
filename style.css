@@ -86,7 +86,7 @@ h1 {
     transition: opacity 0.3s ease-in;;
 }
 
-.loader .show {
+.loader.show {
     opacity: 1;
 }
 
