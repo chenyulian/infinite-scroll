@@ -28,6 +28,9 @@ h1 {
     max-width: 800px;
 }
 
+.filter-container input {
+    font-size: 16px;
+}
 .filter-container input:focus {
     outline:none;
 }
