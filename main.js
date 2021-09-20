@@ -6,38 +6,52 @@ const url = "https://jsonplaceholder.typicode.com";
 let limit = 5;
 let page = 1;
 
-async function getPosts() {
-  const res = await fetch(`${url}/posts?_limit=${limit}&_page=${page}`);
-  const data = await res.json();
-  return data;
+async function fetchData() {
+  let res = await fetch(`${url}/posts?_limit=${limit}&_page=${page}`);
+  return await res.json();
 }
 
-// show posts in DOM
-async function showPosts() {
-  const posts = await getPosts();
-  posts.forEach((post) => {
+async function showData() {
+  let data = await fetchData();
+  render(data);
+}
+
+function render(data) {
+  data.forEach((post) => {
     const postEl = document.createElement("div");
     postEl.classList.add("post");
     postEl.innerHTML = `<div class="number">${post.id}</div>
-      <div class="post-info">
-          <div class="post-title">${post.title}</div>
-          <p class="post-body">${post.body}</p>
-      </div>`;
+          <div class="post-info">
+              <div class="post-title">${post.title}</div>
+              <p class="post-body">${post.body}</p>
+          </div>`;
     postsContainer.appendChild(postEl);
   });
 }
 
-// show loading and fetch more posts
-function showLoading() {
+// show initial data
+showData();
+
+// load more data
+function load() {
   loading.classList.add("show");
-  setTimeout(() => {
+  page++;
+  showData().then(() => {
     loading.classList.remove("show");
-    setTimeout(() => {
-      page++;
-      showPosts();
-    }, 300);
-  }, 1000);
+  });
 }
+
+function throttle(fn, delay) {
+  let canUse = true;
+  return function () {
+    if (canUse) {
+      fn.apply(this, arguments);
+      canUse = false;
+      setTimeout(() => (canUse = true), delay);
+    }
+  };
+}
+const throttled = throttle(load, 1000);
 
 // filter posts
 function filterPosts(e) {
@@ -53,26 +67,13 @@ function filterPosts(e) {
     }
   });
 }
-// show initial posts
-showPosts();
 
 window.addEventListener("scroll", () => {
   const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
   if (scrollTop + clientHeight >= scrollHeight - 10) {
+    // 节流
     throttled();
   }
 });
-
-function throttle(fn, delay) {
-  let canUse = true;
-  return function () {
-    if (canUse) {
-      fn.apply(this, arguments);
-      canUse = false;
-      setTimeout(() => (canUse = true), delay);
-    }
-  };
-}
-const throttled = throttle(showLoading, 1000);
 
 filter.addEventListener("input", filterPosts);
